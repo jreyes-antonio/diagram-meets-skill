@@ -54,10 +54,11 @@
     "La autorización DGC se ubicó antes de la validación final, aunque parte de la preparación ocurre previamente."
   ],
   "open_questions": [
-    "¿Qué sistema publica el rol y cuál es su formato oficial de descarga?",
-    "¿Qué sistema o responsable genera el archivo Freez y cuándo queda disponible?",
-    "¿Cuáles son exactamente los campos y reglas usados para construir la llave de cruce?",
-    "¿De qué fuente se obtiene la lista de personas que deben recuperarse fuera de Freez y quién la mantiene?",
-    "¿Qué producto o script realiza el mail merge y desde qué cuenta de correo se envían las invitaciones?"
-  ]
+    {"id": "Q001", "question": "¿Qué sistema publica el rol y cuál es su formato oficial de descarga?", "related_nodes": ["rol"]},
+    {"id": "Q002", "question": "¿Qué sistema o responsable genera el archivo Freez y cuándo queda disponible?", "related_nodes": ["freez"]},
+    {"id": "Q003", "question": "¿Cuáles son exactamente los campos y reglas usados para construir la llave de cruce?", "related_nodes": ["definir_llave", "coincidencias"]},
+    {"id": "Q004", "question": "¿De qué fuente se obtiene la lista de personas que deben recuperarse fuera de Freez y quién la mantiene?", "related_nodes": ["casos_excepcionales"]},
+    {"id": "Q005", "question": "¿Qué producto o script realiza el mail merge y desde qué cuenta de correo se envían las invitaciones?", "related_nodes": ["mail_merge", "invitacion"]}
+  ],
+  "resolved_questions": []
 }

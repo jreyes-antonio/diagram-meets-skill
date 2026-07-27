@@ -53,11 +53,12 @@
     "Las bases de iniciales y cursos 50% se modelaron como evidencias de excepción, no como parte del camino normal."
   ],
   "open_questions": [
-    "¿Cuál es el nombre, ubicación, propietario y frecuencia de actualización de la base de RTI programado?",
-    "¿Cuál es la fuente oficial y la frecuencia de actualización de experiencia reciente?",
-    "¿Qué significa exactamente la vigencia “chilena” y de qué archivo o sistema se obtiene?",
-    "¿Cuál es la precedencia cuando Base General contradice una fuente actualizada en tiempo real?",
-    "¿Qué reglas permiten reemplazar manualmente un N/A o un estado vencido y qué evidencia debe conservarse?",
-    "¿Dónde se registran los casos rechazados o pendientes para asegurar su seguimiento?"
-  ]
+    {"id": "Q001", "question": "¿Cuál es el nombre, ubicación, propietario y frecuencia de actualización de la base de RTI programado?", "related_nodes": ["rti_programado"]},
+    {"id": "Q002", "question": "¿Cuál es la fuente oficial y la frecuencia de actualización de experiencia reciente?", "related_nodes": ["otras_fuentes", "validar_vigencias"]},
+    {"id": "Q003", "question": "¿Qué significa exactamente la vigencia “chilena” y de qué archivo o sistema se obtiene?", "related_nodes": ["otras_fuentes", "validar_vigencias"]},
+    {"id": "Q004", "question": "¿Cuál es la precedencia cuando Base General contradice una fuente actualizada en tiempo real?", "related_nodes": ["base_general", "validar_vigencias"]},
+    {"id": "Q005", "question": "¿Qué reglas permiten reemplazar manualmente un N/A o un estado vencido y qué evidencia debe conservarse?", "related_nodes": ["manual", "criterio_manual"]},
+    {"id": "Q006", "question": "¿Dónde se registran los casos rechazados o pendientes para asegurar su seguimiento?", "related_nodes": ["bloqueado"]}
+  ],
+  "resolved_questions": []
 }

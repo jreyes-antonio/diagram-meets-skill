@@ -1,6 +1,6 @@
 ---
 name: transcript-to-flowchart
-description: Convert meeting transcripts, process descriptions, workshop notes, or requirements into polished flowcharts and architecture diagrams. Use when an agent must extract actors, systems, decisions, data stores, transformations, handoffs, parallel paths, and uncertainties from free-form text, then deliver a portable HTML diagram that can be downloaded as SVG or printed to PDF.
+description: Convert meeting transcripts, process descriptions, workshop notes, or requirements into polished flowcharts and architecture diagrams, and iteratively refine them from business answers. Use when an agent must extract actors, systems, decisions, data stores, transformations, handoffs, parallel paths, and uncertainties from free-form text; export open questions for review; reconcile answers; or deliver updated portable HTML, SVG, and PDF-ready diagrams.
 ---
 
 # Transcript to Flowchart
@@ -30,7 +30,22 @@ Convert unstructured conversation into an auditable process model, then render i
    ```
 
 8. Open the HTML and verify every label, edge, decision, and assumption against the transcript.
-9. Deliver the JSON source and HTML. To create a PDF, open the HTML, click **PDF / Imprimir**, and choose **Guardar como PDF**. To create a vector image, click **Descargar SVG**.
+9. Export an editable questionnaire whenever open questions remain:
+
+   ```text
+   python scripts/question_cycle.py export process.json --output process-questions.txt
+   ```
+
+10. Deliver the JSON source, HTML, and questions TXT. To create a PDF, open the HTML, click **PDF / Imprimir**, and choose **Guardar como PDF**. To create a vector image, click **Descargar SVG**.
+
+## Update from business answers
+
+Read `references/clarification-cycle.md` and follow it completely when a user
+returns an edited questions file. Parse the answers, reconcile each one against
+the diagram and original evidence, update the JSON, render the HTML again, and
+export the next questions TXT. Generate focused follow-ups for ambiguous or
+contradictory responses. Never treat a non-empty answer as automatically
+sufficient.
 
 ## Modeling rules
 
@@ -41,7 +56,8 @@ Convert unstructured conversation into an auditable process model, then render i
 - Use `group` for phases, domains, platforms, or teams; do not use it merely for color.
 - Use edge labels for transport, cadence, or condition. Prefer `Sí`/`No`, `Batch`, `Streaming`, `API`, or `Manual` over sentences.
 - Record uncertain interpretations in `assumptions`; show them in the diagram's notes panel.
-- Record omitted details in `open_questions`; do not bury them in a node.
+- Record omitted details in structured `open_questions` with stable IDs whenever
+  an iterative review is expected; do not bury them in a node.
 - Do not reproduce confidential names in a sample or public repository unless authorized.
 
 ## Layout guidance
@@ -63,3 +79,4 @@ Convert unstructured conversation into an auditable process model, then render i
 - The HTML works without internet access and remains readable when printed.
 
 Read `references/diagram-schema.md` whenever creating JSON. Read `references/icon-catalog.md` when choosing or extending icons.
+Read `references/clarification-cycle.md` whenever exporting questions or processing answers.

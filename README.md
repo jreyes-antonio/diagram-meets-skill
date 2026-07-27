@@ -31,6 +31,19 @@ Los orígenes, reglas, responsables o transformaciones que no estén claros se
 representan mediante un nodo `?`, una conexión discontinua y una pregunta de
 negocio al pie del diagrama.
 
+## Completar preguntas de negocio
+
+Exportar las preguntas del modelo:
+
+```bash
+python transcript-to-flowchart/scripts/question_cycle.py export proceso.json --output proceso-preguntas.txt
+```
+
+La persona de negocio escribe sus respuestas bajo cada marcador `RESPUESTA:`.
+Luego se entrega el JSON original y el TXT respondido al agente. La skill
+estructura las respuestas, actualiza los nodos y conexiones, regenera el HTML y
+crea nuevas preguntas cuando alguna respuesta sigue siendo ambigua.
+
 ## Ejemplo de prompt
 
 > Usa la skill `transcript-to-flowchart` para analizar esta transcripción.

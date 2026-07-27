@@ -1,0 +1,37 @@
+PREGUNTAS DE NEGOCIO — Invitaciones a chequeos en vuelo
+
+INSTRUCCIONES
+- Escriba cada respuesta debajo de RESPUESTA:.
+- Puede usar varias líneas.
+- Si no conoce una respuesta, escriba: NO SÉ.
+- No cambie los identificadores [[Q...]].
+
+[[Q001]]
+PREGUNTA: ¿Qué sistema publica el rol y cuál es su formato oficial de descarga?
+RESPUESTA:
+
+[[/Q001]]
+
+[[Q002]]
+PREGUNTA: ¿Qué sistema o responsable genera el archivo Freez y cuándo queda disponible?
+RESPUESTA:
+
+[[/Q002]]
+
+[[Q003]]
+PREGUNTA: ¿Cuáles son exactamente los campos y reglas usados para construir la llave de cruce?
+RESPUESTA:
+
+[[/Q003]]
+
+[[Q004]]
+PREGUNTA: ¿De qué fuente se obtiene la lista de personas que deben recuperarse fuera de Freez y quién la mantiene?
+RESPUESTA:
+
+[[/Q004]]
+
+[[Q005]]
+PREGUNTA: ¿Qué producto o script realiza el mail merge y desde qué cuenta de correo se envían las invitaciones?
+RESPUESTA:
+
+[[/Q005]]

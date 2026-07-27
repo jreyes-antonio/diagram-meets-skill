@@ -22,5 +22,8 @@
     {"from": "warehouse", "to": "dashboard", "label": "Cada mañana"}
   ],
   "assumptions": ["El Excel y la API convergen en la misma validación."],
-  "open_questions": ["¿Dónde se registran los datos rechazados?"]
+  "open_questions": [
+    {"id": "Q001", "question": "¿Dónde se registran los datos rechazados?", "related_nodes": ["validate"]}
+  ],
+  "resolved_questions": []
 }

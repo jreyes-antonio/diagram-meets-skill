@@ -59,6 +59,14 @@ def esc(value: object) -> str:
     return html.escape(str(value or ""), quote=True)
 
 
+def question_text(value: object) -> str:
+    if isinstance(value, dict):
+        qid = value.get("id", "")
+        question = value.get("question", "")
+        return f"[{qid}] {question}" if qid else str(question)
+    return str(value)
+
+
 def render(data: dict) -> str:
     groups = {g["id"]: g for g in data.get("groups", [])}
     max_stage = max((n["stage"] for n in data["nodes"]), default=0)
@@ -90,7 +98,7 @@ def render(data: dict) -> str:
     if data.get("assumptions"):
         notes.append("<section><h3>Supuestos</h3><ul>" + "".join(f"<li>{esc(x)}</li>" for x in data["assumptions"]) + "</ul></section>")
     if data.get("open_questions"):
-        notes.append("<section><h3>Preguntas abiertas</h3><ul>" + "".join(f"<li>{esc(x)}</li>" for x in data["open_questions"]) + "</ul></section>")
+        notes.append("<section><h3>Preguntas abiertas</h3><ul>" + "".join(f"<li>{esc(question_text(x))}</li>" for x in data["open_questions"]) + "</ul></section>")
     payload = json.dumps(data, ensure_ascii=False).replace("</", "<\\/")
     template = """<!doctype html>
 <html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">

@@ -26,7 +26,14 @@ Use UTF-8 JSON with this shape:
     {"from": "excel", "to": "validate", "label": "Cada mañana", "style": "solid"}
   ],
   "assumptions": ["La carga ocurre una vez al día."],
-  "open_questions": ["¿Quién corrige los registros rechazados?"]
+  "open_questions": [
+    {
+      "id": "Q001",
+      "question": "¿Quién corrige los registros rechazados?",
+      "related_nodes": ["validate"]
+    }
+  ],
+  "resolved_questions": []
 }
 ```
 
@@ -53,3 +60,18 @@ Colors must be six-digit hexadecimal values. Avoid embedding HTML in any string.
 
 For missing information, create a `generic` node with `icon: question`, connect it
 with a dashed edge, and repeat the clarification needed in `open_questions`.
+
+Question fields:
+
+- `id`: stable `Q001`-style identifier. Follow-ups use `Q001-F1`.
+- `question`: one focused business question.
+- `related_nodes`: IDs of nodes affected by the answer.
+- `parent_id`: optional original question ID for a follow-up.
+
+For backward compatibility, `open_questions` may contain strings. Convert them
+to structured objects before the first answer-reconciliation cycle.
+
+Resolved question fields:
+
+- `id`, `question`, `answer`: preserve the reviewed evidence.
+- `resolution`: concise description of what changed in the diagram.

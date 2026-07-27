@@ -1,0 +1,43 @@
+PREGUNTAS DE NEGOCIO — Validaciones antes de enviar la invitación
+
+INSTRUCCIONES
+- Escriba cada respuesta debajo de RESPUESTA:.
+- Puede usar varias líneas.
+- Si no conoce una respuesta, escriba: NO SÉ.
+- No cambie los identificadores [[Q...]].
+
+[[Q001]]
+PREGUNTA: ¿Cuál es el nombre, ubicación, propietario y frecuencia de actualización de la base de RTI programado?
+RESPUESTA:
+
+[[/Q001]]
+
+[[Q002]]
+PREGUNTA: ¿Cuál es la fuente oficial y la frecuencia de actualización de experiencia reciente?
+RESPUESTA:
+
+[[/Q002]]
+
+[[Q003]]
+PREGUNTA: ¿Qué significa exactamente la vigencia “chilena” y de qué archivo o sistema se obtiene?
+RESPUESTA:
+
+[[/Q003]]
+
+[[Q004]]
+PREGUNTA: ¿Cuál es la precedencia cuando Base General contradice una fuente actualizada en tiempo real?
+RESPUESTA:
+
+[[/Q004]]
+
+[[Q005]]
+PREGUNTA: ¿Qué reglas permiten reemplazar manualmente un N/A o un estado vencido y qué evidencia debe conservarse?
+RESPUESTA:
+
+[[/Q005]]
+
+[[Q006]]
+PREGUNTA: ¿Dónde se registran los casos rechazados o pendientes para asegurar su seguimiento?
+RESPUESTA:
+
+[[/Q006]]
