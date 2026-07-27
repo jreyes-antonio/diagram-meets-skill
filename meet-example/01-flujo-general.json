@@ -1,0 +1,63 @@
+{
+  "title": "Invitaciones a chequeos en vuelo",
+  "subtitle": "Vista general del proceso mensual · Derivado de la reunión de 46 minutos",
+  "groups": [
+    {"id": "inputs", "label": "Entradas", "color": "#7c3aed"},
+    {"id": "prepare", "label": "Preparación y cruce", "color": "#2563eb"},
+    {"id": "control", "label": "Control y autorización", "color": "#d97706"},
+    {"id": "output", "label": "Comunicación", "color": "#059669"},
+    {"id": "unknown", "label": "Por confirmar", "color": "#dc2626"}
+  ],
+  "nodes": [
+    {"id": "rol", "title": "Rol publicado", "detail": "Se descarga cerca del día 25", "kind": "file", "icon": "file", "stage": 0, "lane": 0, "group": "inputs"},
+    {"id": "freez", "title": "Archivo Freez", "detail": "Solicitudes, vuelos e instructores por flota", "kind": "file", "icon": "excel", "stage": 0, "lane": 1, "group": "inputs"},
+    {"id": "casos_excepcionales", "title": "Casos a recuperar", "detail": "Fuera de Freez; identificación manual", "kind": "generic", "icon": "question", "stage": 0, "lane": 2, "group": "unknown"},
+    {"id": "normalizar", "title": "Normalizar rol", "detail": "Quitar ceros de stock number y convertir fecha", "kind": "process", "icon": "transform", "stage": 1, "lane": 0, "group": "prepare"},
+    {"id": "preparar_base1", "title": "Preparar Base 1", "detail": "Pegar rol, Freez y excepciones", "kind": "process", "icon": "excel", "stage": 1, "lane": 1, "group": "prepare"},
+    {"id": "definir_llave", "title": "Construir llave de cruce", "detail": "Campos exactos no indicados", "kind": "generic", "icon": "question", "stage": 2, "lane": 0, "group": "unknown"},
+    {"id": "coincidencias", "title": "Cruzar coincidencias", "detail": "Filtrar candidatos y copiar a Base 2", "kind": "process", "icon": "transform", "stage": 2, "lane": 1, "group": "prepare"},
+    {"id": "revision_manual", "title": "Resolver excepciones", "detail": "Instructores, N/A y asignaciones dudosas", "kind": "process", "icon": "person", "stage": 3, "lane": 0, "group": "prepare"},
+    {"id": "validar_master", "title": "Validar con Master Report", "detail": "Training, vuelo y población esperada", "kind": "decision", "icon": "decision", "stage": 3, "lane": 1, "group": "control"},
+    {"id": "autorizacion_dgc", "title": "Autorización DGC", "detail": "Carta, expediente y tipo de inspector", "kind": "decision", "icon": "decision", "stage": 4, "lane": 0, "group": "control"},
+    {"id": "reprogramar", "title": "Coordinar nuevas fechas", "detail": "Cuando DGC asigna inspector propio", "kind": "process", "icon": "person", "stage": 4, "lane": 1, "group": "control"},
+    {"id": "consolidar", "title": "Consolidar planilla", "detail": "Fecha, vuelo, ruta, instructor y training", "kind": "process", "icon": "excel", "stage": 5, "lane": 0, "group": "prepare"},
+    {"id": "validaciones", "title": "Validar elegibilidad", "detail": "Vigencias, instructores y duplicidades", "kind": "decision", "icon": "decision", "stage": 6, "lane": 0, "group": "control"},
+    {"id": "ajuste_manual", "title": "Investigar y corregir", "detail": "N/A, vencidos aparentes y casos especiales", "kind": "process", "icon": "person", "stage": 6, "lane": 1, "group": "control"},
+    {"id": "mail_merge", "title": "Mail merge / script", "detail": "Herramienta y cuenta emisora no confirmadas", "kind": "generic", "icon": "question", "stage": 7, "lane": 0, "group": "unknown"},
+    {"id": "invitacion", "title": "Enviar invitaciones", "detail": "Sólo registros con resultado OK", "kind": "end", "icon": "email", "stage": 8, "lane": 0, "group": "output"},
+    {"id": "seguimiento", "title": "Seguimiento diario", "detail": "Master Report y cancelaciones", "kind": "report", "icon": "report", "stage": 8, "lane": 1, "group": "output"}
+  ],
+  "edges": [
+    {"from": "rol", "to": "normalizar", "label": "Descarga manual"},
+    {"from": "normalizar", "to": "preparar_base1"},
+    {"from": "freez", "to": "preparar_base1", "label": "Copiar / pegar"},
+    {"from": "casos_excepcionales", "to": "preparar_base1", "label": "Agregar al final", "style": "dashed"},
+    {"from": "preparar_base1", "to": "definir_llave", "style": "dashed"},
+    {"from": "definir_llave", "to": "coincidencias", "label": "Fórmulas"},
+    {"from": "coincidencias", "to": "revision_manual", "label": "Casos especiales"},
+    {"from": "coincidencias", "to": "validar_master", "label": "Base 2"},
+    {"from": "revision_manual", "to": "validar_master"},
+    {"from": "validar_master", "to": "autorizacion_dgc", "label": "Población consistente"},
+    {"from": "autorizacion_dgc", "to": "reprogramar", "label": "Inspector DGC"},
+    {"from": "reprogramar", "to": "consolidar", "label": "Nuevas fechas"},
+    {"from": "autorizacion_dgc", "to": "consolidar", "label": "Instructor LATAM"},
+    {"from": "consolidar", "to": "validaciones"},
+    {"from": "validaciones", "to": "ajuste_manual", "label": "No / N.A."},
+    {"from": "ajuste_manual", "to": "validaciones", "label": "Corregido", "style": "dashed"},
+    {"from": "validaciones", "to": "mail_merge", "label": "OK"},
+    {"from": "mail_merge", "to": "invitacion"},
+    {"from": "invitacion", "to": "seguimiento", "label": "Durante el mes"}
+  ],
+  "assumptions": [
+    "Se interpretó que Freez es el archivo denominado también como freeze/free en la transcripción.",
+    "El flujo representa Line Check, reentrenamiento y recalificación; existen variaciones por flota y tipo de chequeo.",
+    "La autorización DGC se ubicó antes de la validación final, aunque parte de la preparación ocurre previamente."
+  ],
+  "open_questions": [
+    "¿Qué sistema publica el rol y cuál es su formato oficial de descarga?",
+    "¿Qué sistema o responsable genera el archivo Freez y cuándo queda disponible?",
+    "¿Cuáles son exactamente los campos y reglas usados para construir la llave de cruce?",
+    "¿De qué fuente se obtiene la lista de personas que deben recuperarse fuera de Freez y quién la mantiene?",
+    "¿Qué producto o script realiza el mail merge y desde qué cuenta de correo se envían las invitaciones?"
+  ]
+}

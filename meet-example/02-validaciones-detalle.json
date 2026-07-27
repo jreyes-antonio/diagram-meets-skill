@@ -1,0 +1,63 @@
+{
+  "title": "Validaciones antes de enviar la invitación",
+  "subtitle": "Detalle de fuentes, reglas y excepciones del chequeo en vuelo",
+  "groups": [
+    {"id": "sources", "label": "Fuentes", "color": "#7c3aed"},
+    {"id": "rules", "label": "Validaciones", "color": "#d97706"},
+    {"id": "manual", "label": "Revisión manual", "color": "#dc2626"},
+    {"id": "result", "label": "Resultado", "color": "#059669"},
+    {"id": "unknown", "label": "Por confirmar", "color": "#e11d48"}
+  ],
+  "nodes": [
+    {"id": "planilla", "title": "Planilla consolidada", "detail": "Tripulante, fecha, vuelo e instructor", "kind": "file", "icon": "excel", "stage": 0, "lane": 0, "group": "sources"},
+    {"id": "expediente", "title": "Cartas y expediente DGC", "detail": "Importados mediante script", "kind": "file", "icon": "file", "stage": 0, "lane": 1, "group": "sources"},
+    {"id": "rti", "title": "Histórico RTI", "detail": "2025–2026; instructores titulares", "kind": "database", "icon": "database", "stage": 0, "lane": 2, "group": "sources"},
+    {"id": "rti_programado", "title": "RTI programado", "detail": "Base compartida por una compañera", "kind": "generic", "icon": "question", "stage": 0, "lane": 3, "group": "unknown"},
+    {"id": "base_general", "title": "Base general Perú", "detail": "Vigencias; actualización con corte", "kind": "database", "icon": "database", "stage": 0, "lane": 4, "group": "sources"},
+    {"id": "otras_fuentes", "title": "Fuentes complementarias", "detail": "Experiencia reciente, chilena e histórico LCH", "kind": "generic", "icon": "question", "stage": 0, "lane": 5, "group": "unknown"},
+    {"id": "validar_dgc", "title": "¿Autorizado por DGC?", "detail": "Carta y expediente emitido", "kind": "decision", "icon": "decision", "stage": 1, "lane": 0, "group": "rules"},
+    {"id": "validar_instructor", "title": "¿Instructores distintos?", "detail": "RTI vs LCH; o reentrenamiento vs REC", "kind": "decision", "icon": "decision", "stage": 1, "lane": 2, "group": "rules"},
+    {"id": "validar_vigencias", "title": "¿Vigencias al día?", "detail": "LCH, RTI, último vuelo, chilena y apto médico", "kind": "decision", "icon": "decision", "stage": 1, "lane": 4, "group": "rules"},
+    {"id": "validar_duplicidad", "title": "¿Sin LCH previo?", "detail": "No repetir si ejecutó el mes anterior", "kind": "decision", "icon": "decision", "stage": 2, "lane": 0, "group": "rules"},
+    {"id": "regla_final", "title": "Regla final de elegibilidad", "detail": "Combina resultados de las validaciones", "kind": "process", "icon": "transform", "stage": 2, "lane": 2, "group": "rules"},
+    {"id": "manual", "title": "Resolver excepción", "detail": "N/A, dato desactualizado, inicial o curso 50%", "kind": "process", "icon": "person", "stage": 2, "lane": 4, "group": "manual"},
+    {"id": "criterio_manual", "title": "Criterio de resolución", "detail": "Reglas y evidencias no formalizadas", "kind": "generic", "icon": "question", "stage": 3, "lane": 4, "group": "unknown"},
+    {"id": "resultado", "title": "Resultado OK", "detail": "Chequeo habilitado para invitación", "kind": "end", "icon": "end", "stage": 3, "lane": 2, "group": "result"},
+    {"id": "bloqueado", "title": "No invitar / corregir", "detail": "Queda pendiente de regularización", "kind": "end", "icon": "end", "stage": 3, "lane": 0, "group": "manual"}
+  ],
+  "edges": [
+    {"from": "planilla", "to": "validar_dgc"},
+    {"from": "expediente", "to": "validar_dgc"},
+    {"from": "planilla", "to": "validar_instructor"},
+    {"from": "rti", "to": "validar_instructor", "label": "Ejecutado"},
+    {"from": "rti_programado", "to": "validar_instructor", "label": "Mes actual", "style": "dashed"},
+    {"from": "planilla", "to": "validar_vigencias"},
+    {"from": "base_general", "to": "validar_vigencias"},
+    {"from": "otras_fuentes", "to": "validar_vigencias", "style": "dashed"},
+    {"from": "validar_dgc", "to": "validar_duplicidad", "label": "Sí"},
+    {"from": "validar_dgc", "to": "bloqueado", "label": "No"},
+    {"from": "validar_instructor", "to": "regla_final", "label": "Sí"},
+    {"from": "validar_instructor", "to": "manual", "label": "No / N.A."},
+    {"from": "validar_vigencias", "to": "regla_final", "label": "Sí"},
+    {"from": "validar_vigencias", "to": "manual", "label": "No / N.A."},
+    {"from": "validar_duplicidad", "to": "regla_final", "label": "No repite"},
+    {"from": "validar_duplicidad", "to": "bloqueado", "label": "Repite"},
+    {"from": "regla_final", "to": "resultado", "label": "Todo OK"},
+    {"from": "manual", "to": "criterio_manual", "style": "dashed"},
+    {"from": "criterio_manual", "to": "regla_final", "label": "Justificado", "style": "dashed"},
+    {"from": "criterio_manual", "to": "bloqueado", "label": "No resuelto", "style": "dashed"}
+  ],
+  "assumptions": [
+    "RTI se interpretó como la revisión o evaluación de seguridad mencionada en la conversación.",
+    "REC se mantuvo como sigla porque la transcripción no desarrolla formalmente su significado.",
+    "Las bases de iniciales y cursos 50% se modelaron como evidencias de excepción, no como parte del camino normal."
+  ],
+  "open_questions": [
+    "¿Cuál es el nombre, ubicación, propietario y frecuencia de actualización de la base de RTI programado?",
+    "¿Cuál es la fuente oficial y la frecuencia de actualización de experiencia reciente?",
+    "¿Qué significa exactamente la vigencia “chilena” y de qué archivo o sistema se obtiene?",
+    "¿Cuál es la precedencia cuando Base General contradice una fuente actualizada en tiempo real?",
+    "¿Qué reglas permiten reemplazar manualmente un N/A o un estado vencido y qué evidencia debe conservarse?",
+    "¿Dónde se registran los casos rechazados o pendientes para asegurar su seguimiento?"
+  ]
+}

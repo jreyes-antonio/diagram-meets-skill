@@ -1,0 +1,26 @@
+{
+  "title": "Pipeline de datos comerciales",
+  "subtitle": "Ejemplo portable generado desde una conversación",
+  "groups": [
+    {"id": "sources", "label": "Fuentes", "color": "#7c3aed"},
+    {"id": "data", "label": "Plataforma de datos", "color": "#2563eb"},
+    {"id": "consumption", "label": "Consumo", "color": "#059669"}
+  ],
+  "nodes": [
+    {"id": "excel", "title": "Ventas", "detail": "Excel diario", "kind": "file", "icon": "excel", "stage": 0, "lane": 0, "group": "sources"},
+    {"id": "api", "title": "CRM", "detail": "API incremental", "kind": "api", "icon": "api", "stage": 0, "lane": 1, "group": "sources"},
+    {"id": "validate", "title": "Validar datos", "detail": "Formato y duplicados", "kind": "decision", "icon": "decision", "stage": 1, "lane": 0, "group": "data"},
+    {"id": "transform", "title": "Transformar", "detail": "Limpiar y homologar", "kind": "process", "icon": "transform", "stage": 2, "lane": 0, "group": "data"},
+    {"id": "warehouse", "title": "Data warehouse", "detail": "Modelo comercial", "kind": "database", "icon": "database", "stage": 3, "lane": 0, "group": "data"},
+    {"id": "dashboard", "title": "Dashboard", "detail": "Indicadores diarios", "kind": "report", "icon": "report", "stage": 4, "lane": 0, "group": "consumption"}
+  ],
+  "edges": [
+    {"from": "excel", "to": "validate", "label": "Manual"},
+    {"from": "api", "to": "validate", "label": "API"},
+    {"from": "validate", "to": "transform", "label": "Válido"},
+    {"from": "transform", "to": "warehouse", "label": "Batch"},
+    {"from": "warehouse", "to": "dashboard", "label": "Cada mañana"}
+  ],
+  "assumptions": ["El Excel y la API convergen en la misma validación."],
+  "open_questions": ["¿Dónde se registran los datos rechazados?"]
+}

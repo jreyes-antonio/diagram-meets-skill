@@ -1,0 +1,4 @@
+interface:
+  display_name: "Transcript to Flowchart"
+  short_description: "Convierte transcripciones en diagramas pulidos"
+  default_prompt: "Usa $transcript-to-flowchart para convertir esta transcripción en un diagrama de flujo HTML y PDF."
