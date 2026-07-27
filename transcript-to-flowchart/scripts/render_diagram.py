@@ -65,6 +65,11 @@ def render(data: dict) -> str:
     max_lane = max((n["lane"] for n in data["nodes"]), default=0)
     width = max(1100, 260 + (max_stage + 1) * 270)
     height = max(620, 250 + (max_lane + 1) * 190)
+    # A4 landscape at 96 CSS px/in is about 1123x794 px. Reserve space for
+    # margins and the title, then fit the complete canvas onto one print page.
+    print_scale = min(1.0, 1020 / width, 560 / height)
+    print_width = round(width * print_scale, 2)
+    print_height = round(height * print_scale, 2)
     node_html = []
     for n in data["nodes"]:
         color = groups.get(n.get("group"), {}).get("color", "#475569")
@@ -90,21 +95,31 @@ def render(data: dict) -> str:
     template = """<!doctype html>
 <html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>__TITLE__</title><style>
-:root{font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;color:#172033;background:#eef2f7}
+:root{font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;color:#172033;background:#eef2f7;--print-scale:__PRINT_SCALE__;--print-width:__PRINT_WIDTH__px;--print-height:__PRINT_HEIGHT__px}
 *{box-sizing:border-box}body{margin:0}.toolbar{position:sticky;top:0;z-index:20;display:flex;gap:10px;justify-content:flex-end;padding:12px 22px;background:#0f172acc;backdrop-filter:blur(12px)}
 button{border:1px solid #ffffff38;border-radius:10px;padding:9px 14px;color:white;background:#334155;cursor:pointer;font-weight:700}button.primary{background:#2563eb}
-.page{width:min(96vw,__WIDTH__px);margin:28px auto;background:#fff;border:1px solid #dbe3ef;border-radius:22px;box-shadow:0 20px 55px #26364d22;overflow:hidden}
+.page{width:min(96vw,calc(__WIDTH__px + 2px));margin:28px auto;background:#fff;border:1px solid #dbe3ef;border-radius:22px;box-shadow:0 20px 55px #26364d22;overflow:hidden}
 header{padding:30px 38px 22px;background:linear-gradient(135deg,#f8fbff,#eef5ff);border-bottom:1px solid #e3eaf4}h1{font-size:28px;letter-spacing:-.035em;margin:0 0 7px}header p{margin:0;color:#64748b}.legend{display:flex;gap:17px;flex-wrap:wrap;margin-top:18px;color:#475569;font-size:12px;font-weight:700}.legend span{display:flex;align-items:center;gap:7px}.legend i{width:9px;height:9px;border-radius:99px}
+.canvas-wrap{width:100%;overflow-x:auto;overflow-y:hidden;scrollbar-gutter:stable;background:#fff}
 .canvas{position:relative;width:__WIDTH__px;height:__HEIGHT__px;background-image:radial-gradient(#cbd5e1 1px,transparent 1px);background-size:22px 22px;transform-origin:top left}
 #edges{position:absolute;inset:0;width:100%;height:100%;overflow:visible}.node{position:absolute;width:205px;min-height:82px;display:flex;align-items:center;gap:13px;padding:15px;background:#fff;border:1px solid #dce4ef;border-top:4px solid var(--accent);border-radius:15px;box-shadow:0 9px 24px #21304a19}
 .node .icon{width:45px;height:45px;flex:0 0 45px;display:grid;place-items:center;border-radius:12px;color:var(--accent);background:color-mix(in srgb,var(--accent) 11%,white)}.icon svg{width:25px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .copy{min-width:0}.copy strong{display:block;font-size:14px;line-height:1.25}.copy small{display:block;margin-top:5px;color:#64748b;font-size:11px;line-height:1.3}.copy small:empty{display:none}.kind-decision{border-radius:5px}
 .notes{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;padding:0 30px 28px}.notes section{background:#f8fafc;border:1px solid #e2e8f0;border-radius:13px;padding:15px 18px}.notes h3{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:#475569;margin:0 0 9px}.notes ul{margin:0;padding-left:18px;font-size:12px;color:#475569}.edge-label{font-size:11px;font-weight:700;fill:#475569;paint-order:stroke;stroke:#fff;stroke-width:5px;stroke-linejoin:round}
-@media(max-width:900px){.page{overflow:auto}.toolbar{position:static}.canvas{transform:scale(.78);margin-bottom:calc(__HEIGHT__px * -.22)}}
-@media print{@page{size:landscape;margin:8mm}body{background:white}.toolbar{display:none}.page{width:100%;margin:0;border:0;box-shadow:none}.canvas{transform:scale(.78);margin-bottom:calc(__HEIGHT__px * -.22)}}
-</style></head><body><nav class="toolbar"><button onclick="downloadSVG()">Descargar SVG</button><button class="primary" onclick="window.print()">PDF / Imprimir</button></nav>
+@media(max-width:900px){.toolbar{position:static}.page{width:100vw;margin:0;border-radius:0}.canvas-wrap{scrollbar-gutter:auto}}
+@media print{
+  @page{size:A4 landscape;margin:8mm}
+  html,body{width:100%;background:white}
+  .toolbar{display:none}
+  .page{width:100%;margin:0;border:0;border-radius:0;box-shadow:none;overflow:visible}
+  header{padding:12px 18px 10px;background:white}h1{font-size:20px}.legend{margin-top:8px}
+  .canvas-wrap{width:var(--print-width);height:var(--print-height);margin:0 auto;overflow:visible;break-inside:avoid}
+  .canvas{transform:scale(var(--print-scale))}
+  .notes{padding:12px 18px 0;break-inside:auto}
+}
+</style></head><body><nav class="toolbar"><button onclick="downloadSVG()">Descargar SVG</button><button class="primary" onclick="printDiagram()">PDF / Imprimir · Horizontal</button></nav>
 <main class="page"><header><h1>__TITLE__</h1><p>__SUBTITLE__</p><div class="legend">__LEGEND__</div></header>
-<div class="canvas" id="canvas"><svg id="edges"><defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#64748b"/></marker></defs></svg>__NODES__</div>
+<div class="canvas-wrap" id="canvas-wrap"><div class="canvas" id="canvas"><svg id="edges"><defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#64748b"/></marker></defs></svg>__NODES__</div></div>
 <aside class="notes">__NOTES__</aside></main><script>
 const model=__PAYLOAD__;
 function draw(){const svg=document.querySelector("#edges"),canvas=document.querySelector("#canvas"),box=canvas.getBoundingClientRect();svg.querySelectorAll(".edge").forEach(x=>x.remove());
@@ -113,11 +128,14 @@ const ar=a.getBoundingClientRect(),br=b.getBoundingClientRect(),x1=ar.right-box.
 const g=document.createElementNS("http://www.w3.org/2000/svg","g");g.classList.add("edge");const p=document.createElementNS(g.namespaceURI,"path");p.setAttribute("d",`M${x1} ${y1} C${mx} ${y1},${mx} ${y2},${x2} ${y2}`);p.setAttribute("fill","none");p.setAttribute("stroke","#64748b");p.setAttribute("stroke-width","2");p.setAttribute("marker-end","url(#arrow)");if(e.style==="dashed")p.setAttribute("stroke-dasharray","6 5");g.appendChild(p);
 if(e.label){const t=document.createElementNS(g.namespaceURI,"text");t.setAttribute("x",mx);t.setAttribute("y",(y1+y2)/2-7);t.setAttribute("text-anchor","middle");t.setAttribute("class","edge-label");t.textContent=e.label;g.appendChild(t)}svg.appendChild(g)}}
 function downloadSVG(){draw();const c=document.querySelector("#canvas").cloneNode(true),s=c.querySelector("svg");const css=`.node{font-family:Arial,sans-serif;width:205px;min-height:82px;display:flex;align-items:center;gap:13px;padding:15px;background:#fff;border:1px solid #dce4ef;border-top:4px solid var(--accent);border-radius:15px;box-sizing:border-box}.icon{width:45px;height:45px;flex:0 0 45px;display:grid;place-items:center;border-radius:12px;color:var(--accent);background:#f1f5f9}.icon svg{width:25px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.copy strong{display:block;font-size:14px;color:#172033}.copy small{display:block;margin-top:5px;color:#64748b;font-size:11px}`;const defs=s.querySelector("defs"),style=document.createElementNS(s.namespaceURI,"style");style.textContent=css;defs.appendChild(style);c.querySelectorAll(".node").forEach(n=>{const x=parseFloat(n.style.left),y=parseFloat(n.style.top),fo=document.createElementNS("http://www.w3.org/2000/svg","foreignObject");fo.setAttribute("x",x);fo.setAttribute("y",y);fo.setAttribute("width",205);fo.setAttribute("height",105);fo.innerHTML=`<div xmlns="http://www.w3.org/1999/xhtml">${n.outerHTML.replace(/position:absolute/,"position:relative").replace(/left:[^;]+;/,"left:0;").replace(/top:[^;]+;/,"top:0;")}</div>`;s.appendChild(fo);n.remove()});s.setAttribute("xmlns","http://www.w3.org/2000/svg");s.setAttribute("width","__WIDTH__");s.setAttribute("height","__HEIGHT__");const blob=new Blob([new XMLSerializer().serializeToString(s)],{type:"image/svg+xml"}),a=document.createElement("a"),url=URL.createObjectURL(blob);a.href=url;a.download="diagrama.svg";a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}
+function printDiagram(){draw();window.print()}
 addEventListener("load",draw);addEventListener("resize",draw);
 </script></body></html>"""
     replacements = {
         "__TITLE__": esc(data["title"]), "__SUBTITLE__": esc(data.get("subtitle", "")),
         "__WIDTH__": str(width), "__HEIGHT__": str(height), "__LEGEND__": group_chips,
+        "__PRINT_SCALE__": f"{print_scale:.6f}", "__PRINT_WIDTH__": str(print_width),
+        "__PRINT_HEIGHT__": str(print_height),
         "__NODES__": "".join(node_html), "__NOTES__": "".join(notes), "__PAYLOAD__": payload,
     }
     for key, value in replacements.items():
