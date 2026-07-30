@@ -1,54 +1,291 @@
 # Diagram Meets Skill
 
-Skill portable para convertir transcripciones de reuniones en diagramas de flujo
-HTML/SVG, identificando procesos, decisiones, fuentes, transformaciones y
-preguntas pendientes para el negocio.
+Skill portable para convertir transcripciones de reuniones en diagramas de
+flujo HTML/SVG, detectar información incompleta y refinar el proceso mediante
+preguntas y respuestas de negocio.
 
-## Contenido
+Funciona con Claude Code, Codex y otras herramientas compatibles con el
+estándar `SKILL.md`. El repositorio puede alojarse tanto en GitHub como en
+GitLab.
 
-- `transcript-to-flowchart/`: skill compatible con agentes que consumen
-  instrucciones `SKILL.md`.
-- `meet-example/`: ejemplo real anonimizado, con una vista general y otra de
-  validaciones.
-- `example-output/`: ejemplo básico del renderizador.
+## Características
 
-## Uso
+- Analiza transcripciones en DOCX, TXT o Markdown.
+- Identifica actores, sistemas, archivos, bases de datos, decisiones,
+  transformaciones, rutas paralelas y excepciones.
+- Genera un modelo JSON auditable y un HTML autocontenido.
+- Incluye iconos para bases de datos, Excel, APIs, archivos, personas,
+  transformaciones y reportes.
+- Marca información desconocida con nodos `?` y conexiones discontinuas.
+- Exporta preguntas de negocio a un TXT editable.
+- Procesa las respuestas y regenera el diagrama de forma iterativa.
+- Permite descargar SVG o imprimir en PDF horizontal.
+- Incluye versionado semántico y comprobación de actualizaciones.
 
-1. Entregar al agente la transcripción completa en DOCX, TXT o Markdown.
-2. Pedirle que use `transcript-to-flowchart/SKILL.md`.
-3. El agente genera el modelo JSON siguiendo
-   `references/diagram-schema.md`.
-4. Renderizar el resultado:
+## Requisitos
 
-   ```bash
-   python transcript-to-flowchart/scripts/render_diagram.py proceso.json --output proceso.html
-   ```
+- Python 3.9 o posterior.
+- Node.js y `npx` para la instalación automatizada.
+- Claude Code, Codex u otro agente compatible con Agent Skills.
 
-5. Abrir el HTML. Desde la barra superior se puede descargar SVG o imprimir y
-   guardar como PDF.
+El renderizador usa únicamente la biblioteca estándar de Python. El HTML
+generado no requiere conexión a internet.
 
-Los orígenes, reglas, responsables o transformaciones que no estén claros se
-representan mediante un nodo `?`, una conexión discontinua y una pregunta de
-negocio al pie del diagrama.
+## Instalación en Claude Code
 
-## Completar preguntas de negocio
+### Instalación global
 
-Exportar las preguntas del modelo:
+Disponible para todos los proyectos del usuario:
 
 ```bash
-python transcript-to-flowchart/scripts/question_cycle.py export proceso.json --output proceso-preguntas.txt
+npx skills@latest add jreyes-antonio/diagram-meets-skill \
+  --skill transcript-to-flowchart \
+  --agent claude-code \
+  --global \
+  --yes
 ```
 
-La persona de negocio escribe sus respuestas bajo cada marcador `RESPUESTA:`.
-Luego se entrega el JSON original y el TXT respondido al agente. La skill
-estructura las respuestas, actualiza los nodos y conexiones, regenera el HTML y
-crea nuevas preguntas cuando alguna respuesta sigue siendo ambigua.
+En PowerShell se puede ejecutar en una sola línea:
 
-## Ejemplo de prompt
+```powershell
+npx skills@latest add jreyes-antonio/diagram-meets-skill --skill transcript-to-flowchart --agent claude-code --global --yes
+```
+
+La ruta esperada es:
+
+```text
+~/.claude/skills/transcript-to-flowchart/
+```
+
+### Instalación sólo para un proyecto
+
+Ejecutar desde la raíz del proyecto y omitir `--global`:
+
+```bash
+npx skills@latest add jreyes-antonio/diagram-meets-skill \
+  --skill transcript-to-flowchart \
+  --agent claude-code \
+  --yes
+```
+
+La skill quedará en:
+
+```text
+<proyecto>/.claude/skills/transcript-to-flowchart/
+```
+
+### Instalación desde GitLab
+
+El instalador acepta URLs completas de GitLab. Para un mirror o fork:
+
+```bash
+npx skills@latest add https://gitlab.com/<grupo>/diagram-meets-skill \
+  --skill transcript-to-flowchart \
+  --agent claude-code \
+  --global \
+  --yes
+```
+
+### Comprobar la instalación
+
+```bash
+npx skills@latest list --global --agent claude-code
+```
+
+Si Claude Code estaba abierto antes de crear por primera vez el directorio de
+skills, reiniciarlo.
+
+## Versión y actualizaciones
+
+La versión instalada se encuentra en:
+
+```text
+transcript-to-flowchart/VERSION
+```
+
+Consultar sólo la versión local:
+
+```bash
+python ~/.claude/skills/transcript-to-flowchart/scripts/version_info.py
+```
+
+Compararla con la versión publicada:
+
+```bash
+python ~/.claude/skills/transcript-to-flowchart/scripts/version_info.py --check
+```
+
+En Windows PowerShell:
+
+```powershell
+python "$HOME\.claude\skills\transcript-to-flowchart\scripts\version_info.py" --check
+```
+
+También se le puede preguntar directamente a Claude:
+
+> Usa `transcript-to-flowchart` y dime qué versión está instalada. Comprueba si
+> está actualizada.
+
+Actualizar únicamente esta skill:
+
+```bash
+npx skills@latest update transcript-to-flowchart --global --yes
+```
+
+Si el gestor no conserva el origen de instalación, reinstalar:
+
+```bash
+npx skills@latest add jreyes-antonio/diagram-meets-skill \
+  --skill transcript-to-flowchart \
+  --agent claude-code \
+  --global \
+  --yes
+```
+
+El proyecto usa versionado semántico:
+
+- `PATCH`: correcciones sin cambiar el contrato.
+- `MINOR`: nuevas funciones compatibles.
+- `MAJOR`: cambios incompatibles en el JSON, scripts o flujo de uso.
+
+Cada versión publicada debe actualizar `VERSION` y crear un tag Git
+`vX.Y.Z`.
+
+## Uso básico
+
+Ejemplo de solicitud:
 
 > Usa la skill `transcript-to-flowchart` para analizar esta transcripción.
 > Separa hechos de supuestos, marca con `?` toda información faltante y genera
-> el JSON y el HTML final.
+> el JSON, el HTML y el archivo de preguntas.
 
-El renderizador utiliza únicamente la biblioteca estándar de Python y el HTML
-resultante funciona sin conexión a internet.
+El agente debe entregar:
+
+```text
+proceso.json
+proceso.html
+proceso-preguntas.txt
+```
+
+El HTML incluye desplazamiento horizontal para diagramas grandes, descarga SVG
+y salida PDF A4 horizontal.
+
+## Renderizar un JSON manualmente
+
+```bash
+python transcript-to-flowchart/scripts/render_diagram.py \
+  proceso.json \
+  --output proceso.html
+```
+
+## Ciclo de preguntas de negocio
+
+### 1. Exportar las preguntas
+
+```bash
+python transcript-to-flowchart/scripts/question_cycle.py export \
+  proceso.json \
+  --output proceso-preguntas.txt
+```
+
+### 2. Completar el TXT
+
+Escribir debajo de cada marcador `RESPUESTA:` sin modificar los identificadores:
+
+```text
+[[Q001]]
+PREGUNTA: ¿Qué sistema publica el rol?
+RESPUESTA:
+El rol se publica en Operaciones y se descarga como XLSX.
+[[/Q001]]
+```
+
+### 3. Procesar las respuestas
+
+Entregar al agente el JSON original y el TXT respondido. Opcionalmente,
+estructurar primero las respuestas:
+
+```bash
+python transcript-to-flowchart/scripts/question_cycle.py parse \
+  proceso.json \
+  proceso-preguntas.txt \
+  --output proceso-respuestas.json
+```
+
+La skill debe:
+
+1. Vincular cada respuesta con sus nodos.
+2. Actualizar nodos, conexiones, reglas y supuestos.
+3. Conservar respuestas aplicadas en `resolved_questions`.
+4. Eliminar un nodo `?` sólo cuando la incertidumbre esté resuelta.
+5. Crear repreguntas como `Q003-F1` si la respuesta sigue siendo ambigua.
+6. Regenerar el JSON, el HTML y un TXT con las preguntas pendientes.
+
+## Instalación manual
+
+Clonar el repositorio y copiar la carpeta completa:
+
+```bash
+git clone https://github.com/jreyes-antonio/diagram-meets-skill.git
+mkdir -p ~/.claude/skills
+cp -R diagram-meets-skill/transcript-to-flowchart ~/.claude/skills/
+```
+
+Para un repositorio GitLab, sustituir la URL del `git clone`.
+
+## Estructura
+
+```text
+transcript-to-flowchart/
+├── SKILL.md
+├── VERSION
+├── agents/
+├── assets/
+├── references/
+└── scripts/
+    ├── question_cycle.py
+    ├── render_diagram.py
+    └── version_info.py
+```
+
+Los diagramas reales anonimizados están en `meet-example/`.
+
+## Solución de problemas
+
+### `No skills found`
+
+Usar el nombre exacto:
+
+```text
+transcript-to-flowchart
+```
+
+Y comprobar que `SKILL.md` se encuentre dentro de la carpeta instalada.
+
+### Claude no activa la skill
+
+Invocarla explícitamente:
+
+```text
+/transcript-to-flowchart
+```
+
+O mencionarla por nombre en la solicitud.
+
+### `python` no está disponible
+
+Instalar Python 3 o usar el nombre disponible en el sistema, por ejemplo
+`python3`.
+
+### No se puede comprobar la versión remota
+
+La versión local seguirá disponible. La comparación remota requiere acceso a:
+
+```text
+raw.githubusercontent.com
+```
+
+## Privacidad
+
+No publicar transcripciones originales ni nombres personales sin autorización.
+Los ejemplos del repositorio deben permanecer anonimizados.

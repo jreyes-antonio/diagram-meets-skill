@@ -1,6 +1,6 @@
 ---
 name: transcript-to-flowchart
-description: Convert meeting transcripts, process descriptions, workshop notes, or requirements into polished flowcharts and architecture diagrams, and iteratively refine them from business answers. Use when an agent must extract actors, systems, decisions, data stores, transformations, handoffs, parallel paths, and uncertainties from free-form text; export open questions for review; reconcile answers; or deliver updated portable HTML, SVG, and PDF-ready diagrams.
+description: Convert meeting transcripts, process descriptions, workshop notes, or requirements into polished flowcharts and architecture diagrams, and iteratively refine them from business answers. Use when an agent must extract actors, systems, decisions, data stores, transformations, handoffs, parallel paths, and uncertainties from free-form text; export open questions for review; reconcile answers; deliver updated portable HTML, SVG, and PDF-ready diagrams; or report and check the installed transcript-to-flowchart version.
 ---
 
 # Transcript to Flowchart
@@ -46,6 +46,24 @@ the diagram and original evidence, update the JSON, render the HTML again, and
 export the next questions TXT. Generate focused follow-ups for ambiguous or
 contradictory responses. Never treat a non-empty answer as automatically
 sufficient.
+
+## Report or check the version
+
+When asked which version is installed, read `VERSION` or run:
+
+```text
+python scripts/version_info.py
+```
+
+When asked whether it is current, run:
+
+```text
+python scripts/version_info.py --check
+```
+
+Report the installed version even if the remote check fails. Never claim that
+the skill is current when network access is unavailable. If it is outdated,
+show the update command returned by the script.
 
 ## Modeling rules
 
