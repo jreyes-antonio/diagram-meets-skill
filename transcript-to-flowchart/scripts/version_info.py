@@ -9,6 +9,7 @@ import math
 import re
 import shutil
 import subprocess
+import time
 import urllib.error
 import urllib.request
 from pathlib import Path
@@ -39,6 +40,7 @@ def version_tuple(version: str) -> tuple[int, int, int]:
 
 
 def fetch_latest(timeout: float) -> str:
+    remote_url = f"{REMOTE_VERSION_URL}?ts={int(time.time())}"
     curl = shutil.which("curl")
     if curl:
         completed = subprocess.run(
@@ -49,7 +51,7 @@ def fetch_latest(timeout: float) -> str:
                 "--show-error",
                 "--max-time",
                 str(max(1, math.ceil(timeout))),
-                REMOTE_VERSION_URL,
+                remote_url,
             ],
             check=False,
             capture_output=True,
@@ -64,7 +66,7 @@ def fetch_latest(timeout: float) -> str:
         raise OSError(completed.stderr.strip() or f"curl exited with {completed.returncode}")
 
     request = urllib.request.Request(
-        REMOTE_VERSION_URL,
+        remote_url,
         headers={"User-Agent": "transcript-to-flowchart-version-check"},
     )
     with urllib.request.urlopen(request, timeout=timeout) as response:
