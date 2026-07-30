@@ -5,7 +5,10 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import re
+import shutil
+import subprocess
 import urllib.error
 import urllib.request
 from pathlib import Path
@@ -36,6 +39,30 @@ def version_tuple(version: str) -> tuple[int, int, int]:
 
 
 def fetch_latest(timeout: float) -> str:
+    curl = shutil.which("curl")
+    if curl:
+        completed = subprocess.run(
+            [
+                curl,
+                "--fail",
+                "--silent",
+                "--show-error",
+                "--max-time",
+                str(max(1, math.ceil(timeout))),
+                REMOTE_VERSION_URL,
+            ],
+            check=False,
+            capture_output=True,
+            text=True,
+            timeout=timeout + 2,
+        )
+        if completed.returncode == 0:
+            version = completed.stdout.strip()
+            if not SEMVER_RE.fullmatch(version):
+                raise ValueError(f"upstream returned an invalid version: {version!r}")
+            return version
+        raise OSError(completed.stderr.strip() or f"curl exited with {completed.returncode}")
+
     request = urllib.request.Request(
         REMOTE_VERSION_URL,
         headers={"User-Agent": "transcript-to-flowchart-version-check"},
